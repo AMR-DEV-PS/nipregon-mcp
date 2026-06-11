@@ -1,4 +1,4 @@
-![NIPRegon MCP Server](assets/banner.png)
+![NIPRegon MCP Server](assets/banner-en.png)
 
 # NIPRegon MCP Server
 
@@ -173,6 +173,80 @@ prohibited to use this server for creditworthiness scoring, automated
 assessment of natural persons or direct marketing towards sole traders.
 Queries are not logged beyond anonymous daily rate-limit counters.
 Details: [terms of service](https://nipregon.pl/regulamin) (Polish).
+
+---
+
+![NIPRegon MCP Server](assets/banner-pl.png)
+
+# 🇵🇱 NIPRegon MCP Server (dokumentacja po polsku)
+
+Sprawdzaj **polskie firmy** z poziomu dowolnego asystenta AI: dane rejestrowe
+(KRS, REGON, CEIDG), biała lista VAT przed przelewem i sprawozdania finansowe
+4,4 mln polskich podmiotów.
+
+Zasilane przez [NIPRegon.pl](https://nipregon.pl): dane wyłącznie z oficjalnych
+rejestrów publicznych (KRS, REGON, CEIDG, wykaz podatników VAT Ministerstwa
+Finansów oraz sprawozdania finansowe złożone do KRS).
+
+## Serwer zdalny (zalecany)
+
+Jeden endpoint, zero instalacji:
+
+```
+https://api.nipregon.pl/mcp
+```
+
+Uniwersalna konfiguracja dla większości klientów MCP:
+
+```json
+{
+  "mcpServers": {
+    "nipregon": {
+      "type": "http",
+      "url": "https://api.nipregon.pl/mcp"
+    }
+  }
+}
+```
+
+**Claude Code:**
+
+```bash
+claude mcp add --transport http nipregon https://api.nipregon.pl/mcp
+```
+
+**Claude Desktop / claude.ai:** Ustawienia → Konektory → Dodaj własny konektor
+→ wklej `https://api.nipregon.pl/mcp`.
+
+Transport: streamable HTTP (JSON-RPC 2.0). Darmowy limit: 100 wywołań
+narzędzi dziennie na adres IP. Wyższe limity: [nipregon.pl/api](https://nipregon.pl/api).
+
+## Zapytaj swojego asystenta
+
+- „Sprawdź firmę o NIP 7791906082, zanim podpiszę umowę."
+- „Znajdź spółkę Eurocash i pokaż jej przychody z ostatnich 5 lat."
+- „Czy rachunek z tej faktury jest na białej liście dostawcy?"
+
+## Narzędzia
+
+- **search_company** — wyszukiwanie spółek po nazwie (fuzzy). Zwraca NIP, KRS,
+  miasto, status i link do profilu.
+- **get_company** — pełne dane rejestrowe spółki po NIP: adres, forma prawna,
+  status, KRS, REGON, kody PKD, zarząd, status VAT.
+- **get_financials** — roczne sprawozdania finansowe z KRS: przychody, zysk
+  netto, aktywa, kapitał własny, zobowiązania.
+- **check_vat_whitelist** — status VAT w wykazie podatników (biała lista KAS)
+  i opcjonalnie weryfikacja, czy numer rachunku figuruje na białej liście
+  podmiotu (istotne przed przelewem powyżej 15 tys. zł).
+
+## Dane i prywatność
+
+Serwer jest tylko do odczytu i zwraca wyłącznie dane z oficjalnych rejestrów
+publicznych. Dane JDG stanowią dane osobowe (RODO): zakaz wykorzystania do
+scoringu kredytowego, automatycznej oceny osób fizycznych i marketingu
+bezpośredniego wobec JDG. Zapytania nie są logowane poza anonimowymi
+licznikami limitów dziennych. Szczegóły:
+[regulamin](https://nipregon.pl/regulamin).
 
 ## License
 
