@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "pl.nipregon/nipregon",
+  "description": "Polish company registry lookup: 4.4M companies, KRS/REGON data, VAT white list checks and financial statements",
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/AMR-DEV-PS/nipregon-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://nipregon.pl/mcp",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.nipregon.pl/mcp"
+    }
+  ]
+}
