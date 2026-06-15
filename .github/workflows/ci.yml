@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON manifests
+        run: |
+          for f in server.json glama.json package.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "OK: $f"
+          done
+
+      - name: Syntax check stdio bridge
+        run: node --check nipregon-mcp.mjs
+
+      - name: Introspection works WITHOUT network egress (Glama build-test guarantee)
+        run: |
+          OUT=$(printf '%s\n%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+            | NIPREGON_BASE="http://127.0.0.1:1" node nipregon-mcp.mjs)
+          echo "$OUT"
+          for t in search_company get_company get_financials check_vat_whitelist; do
+            echo "$OUT" | grep -q "\"$t\"" || { echo "FAIL: brak narzedzia $t w tools/list"; exit 1; }
+          done
+          echo "OK: 4 narzedzia zwrocone bez dostepu do sieci (egress-independent)"
