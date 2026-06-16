@@ -148,15 +148,22 @@ function replyError(id, code, message) {
 async function forward(message) {
   const headers = { "Content-Type": "application/json" };
   if (KEY) headers["Authorization"] = `Bearer ${KEY}`;
-  const resp = await fetch(`${BASE}/mcp`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(message),
-  });
-  if (resp.status === 202) return null; // notyfikacja, bez odpowiedzi
-  const text = await resp.text();
-  if (!text) return null;
-  return JSON.parse(text);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000); // forward NIE moze wisiec (np. brak egressu)
+  try {
+    const resp = await fetch(`${BASE}/mcp`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(message),
+      signal: ctrl.signal,
+    });
+    if (resp.status === 202) return null; // notyfikacja, bez odpowiedzi
+    const text = await resp.text();
+    if (!text) return null;
+    return JSON.parse(text);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 let buffer = "";
@@ -187,6 +194,13 @@ process.stdin.on("data", async (chunk) => {
     }
     if (message.method === "tools/list") { reply(message.id, { tools: TOOLS }); continue; }
     if (message.method === "ping") { reply(message.id, {}); continue; }
+
+    // Pozostale metody handshake'u / capability-probing — LOKALNIE, puste listy.
+    // Bez tego klient (np. build-test Glamy) wola resources/list lub prompts/list,
+    // bridge forwarduje do sieci, a sandbox bez egressu wiesza fetch -> "build failed".
+    if (message.method === "resources/list") { reply(message.id, { resources: [] }); continue; }
+    if (message.method === "resources/templates/list") { reply(message.id, { resourceTemplates: [] }); continue; }
+    if (message.method === "prompts/list") { reply(message.id, { prompts: [] }); continue; }
 
     // ── Reszta (tools/call i inne) → forward do zdalnego serwera ───────────
     try {
