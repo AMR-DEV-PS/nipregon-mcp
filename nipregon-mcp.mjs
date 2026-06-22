@@ -20,7 +20,7 @@ const PROTOCOL_VERSION = "2025-06-18";
 const SERVER_INFO = {
   "name": "nipregon",
   "title": "NIPRegon: Polish company registry",
-  "version": "1.0.0"
+  "version": "1.1.0"
 };
 const CAPABILITIES = {"tools": {"listChanged": false}};
 const INSTRUCTIONS = "NIPRegon.pl: official registry data on Polish companies (KRS court register, REGON, CEIDG, the Ministry of Finance VAT white list, financial statements). Data comes exclusively from public state registers. Use these tools when the user asks about a Polish company, its NIP/REGON/KRS, registry details, financials, or VAT status. Prohibited uses: creditworthiness scoring, automated assessment of natural persons, and direct marketing towards sole traders. Web profile: https://nipregon.pl/nip/{nip}";
@@ -130,6 +130,81 @@ const TOOLS = [
     },
     "annotations": {
       "title": "Check company on the VAT white list",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "check_risk_flags",
+    "title": "Check sanctions and KNF warnings",
+    "description": "Compliance red-flag check for a Polish company (legal entity) by NIP. USE THIS for KYC/AML or before onboarding a counterparty: returns whether the company appears on Polish or EU sanctions lists (as the sanctioned subject) and whether it has a public warning from the KNF (Polish Financial Supervision Authority). A KNF warning is a notice filed with the prosecutor, not a conviction: apply the presumption of innocence. Legal entities only (sole traders are out of scope). Exact match on NIP/KRS/REGON. Read-only.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nip": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$",
+          "description": "Polish tax ID (NIP), 10 digits"
+        }
+      },
+      "required": [
+        "nip"
+      ]
+    },
+    "annotations": {
+      "title": "Check sanctions and KNF warnings",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "get_public_tenders",
+    "title": "Get public procurement contracts won",
+    "description": "Get Polish public-procurement contracts awarded to a company (legal entity) by NIP, as published in the Public Procurement Bulletin (BZP). USE THIS for due diligence or sales intelligence when the user asks what public tenders or government contracts a company has won. Returns up to 25 most recent awards (subject, contracting authority, city, date, value) plus the total count and total value across all awards. Legal entities only. Read-only.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nip": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$",
+          "description": "Polish tax ID (NIP), 10 digits"
+        }
+      },
+      "required": [
+        "nip"
+      ]
+    },
+    "annotations": {
+      "title": "Get public procurement contracts won",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "get_lei",
+    "title": "Get the company LEI code",
+    "description": "Get the Legal Entity Identifier (LEI, ISO 17442) of a Polish company (legal entity) by NIP, from the GLEIF register. USE THIS when the user needs a company's LEI for cross-border or financial-market reporting (MiFID, EMIR, payments). Returns the LEI, the registered legal name and the LEI status. Coverage is partial. Legal entities only. Read-only.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nip": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$",
+          "description": "Polish tax ID (NIP), 10 digits"
+        }
+      },
+      "required": [
+        "nip"
+      ]
+    },
+    "annotations": {
+      "title": "Get the company LEI code",
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true,

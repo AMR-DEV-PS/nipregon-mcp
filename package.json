@@ -1,6 +1,6 @@
 {
   "name": "nipregon-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MCP server (stdio bridge) for NIPRegon.pl - registry data on 4.4M Polish companies (KRS/REGON/CEIDG, VAT white list, financial statements).",
   "type": "module",
   "bin": {
